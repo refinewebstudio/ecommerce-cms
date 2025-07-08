@@ -1,7 +1,7 @@
 export default {
   experimental: {
-    ppr: true,
-    inlineCss: true,
+    ppr: false,
+    inlineCss: false,
     useCache: true
   },
   images: {
