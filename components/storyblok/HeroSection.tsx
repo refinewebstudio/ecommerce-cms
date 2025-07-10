@@ -1,5 +1,5 @@
 import { storyblokEditable } from '@storyblok/react/rsc';
-import { renderRichText } from '@storyblok/richtext';
+import { richTextResolver } from '@storyblok/richtext';
 import Link from 'next/link';
 import { StoryblokAsset } from '@/lib/storyblok';
 
@@ -95,7 +95,7 @@ export default function Hero({ blok }: HeroProps) {
             <div 
               className={`text-xl sm:text-2xl ${textColorClasses[blok.text_color || 'white']} opacity-90`}
               dangerouslySetInnerHTML={{ 
-                __html: renderRichText(blok.subheadline) 
+                __html: richTextResolver(blok.subheadline) 
               }}
             />
           )}

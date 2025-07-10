@@ -1,7 +1,7 @@
 
 // components/storyblok/CtaSection.tsx
 import { storyblokEditable } from '@storyblok/react/rsc';
-import { renderRichText } from '@storyblok/richtext';
+import { richTextResolver } from '@storyblok/richtext';
 import Link from 'next/link';
 import { StoryblokAsset } from '@/lib/storyblok';
 
@@ -58,7 +58,7 @@ export default function CtaSection({ blok }: CtaSectionProps) {
             <div 
               className="mx-auto mt-6 max-w-3xl text-lg text-gray-300"
               dangerouslySetInnerHTML={{ 
-                __html: renderRichText(blok.description) 
+                __html: richTextResolver(blok.description) 
               }}
             />
           )}

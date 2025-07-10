@@ -1,42 +1,56 @@
-import { storyblokInit, apiPlugin, getStoryblokApi } from '@storyblok/react/rsc';
+// lib/storyblok.ts (updated version)
 
-// Import your Storyblok components
+import { storyblokInit, apiPlugin, getStoryblokApi } from '@storyblok/react';
+
+// Import your components (make sure these files exist)
 import Page from '@/components/storyblok/Page';
-import Hero from '@/components/storyblok/Hero';
-import ProductSpotlight from '@/components/storyblok/ProductSpotlight';
+import Hero from '@/components/storyblok/HeroSection';
+import ProductSpotlight from '@/components/storyblok/ProductSpotlight' ;
 import ProductGrid from '@/components/storyblok/ProductGrid';
 import TextBlock from '@/components/storyblok/TextBlock';
-import ImageGallery from '@/components/storyblok/ImageGallery';
 import CtaSection from '@/components/storyblok/CtaSection';
-import BlogPost from '@/components/storyblok/BlogPost';
 import CollectionShowcase from '@/components/storyblok/CollectionShowcase';
 import TestimonialGrid from '@/components/storyblok/TestimonialGrid';
-import FaqSection from '@/components/storyblok/FaqSection';
+import Testimonial from '@/components/storyblok/Testimonial';
 import NewsletterSignup from '@/components/storyblok/NewsletterSignup';
+import CtaButton from '@/components/storyblok/CtaButton';
+import Seo from '@/components/storyblok/Seo';
+
+const components = {
+  page: Page,
+    hero: Hero,
+    product_spotlight: ProductSpotlight,
+    product_grid: ProductGrid,
+    text_block: TextBlock,
+    cta_section: CtaSection,
+    collection_showcase: CollectionShowcase,
+    testimonial_grid: TestimonialGrid,
+    testimonial: Testimonial,
+    newsletter_signup: NewsletterSignup,
+    cta_button: CtaButton,
+    seo: Seo,
+};
 
 // Initialize Storyblok
 storyblokInit({
   accessToken: process.env.STORYBLOK_ACCESS_TOKEN!,
   use: [apiPlugin],
-  components: {
-    page: Page,
-    hero: Hero,
-    product_spotlight: ProductSpotlight,
-    product_grid: ProductGrid,
-    text_block: TextBlock,
-    image_gallery: ImageGallery,
-    cta_section: CtaSection,
-    blog_post: BlogPost,
-    collection_showcase: CollectionShowcase,
-    testimonial_grid: TestimonialGrid,
-    faq_section: FaqSection,
-    newsletter_signup: NewsletterSignup,
-  },
+  components,
 });
+
+console.log('🔍 Checking component types:');
+Object.entries(components).forEach(([name, component]) => {
+  console.log(`${name}:`, {
+    isFunction: typeof component === 'function',
+    isAsync: component.constructor.name === 'AsyncFunction',
+    toString: component.toString().slice(0, 100) + '...'
+  });
+});
+
 
 export { getStoryblokApi };
 
-// Helper function to get story data
+// Helper function to get story with better error handling
 export async function getStoryblokStory(slug: string, isPreview = false) {
   const storyblokApi = getStoryblokApi();
   
@@ -47,13 +61,20 @@ export async function getStoryblokStory(slug: string, isPreview = false) {
     });
     
     return data?.story;
-  } catch (error) {
-    console.error('Error fetching Storyblok story:', error);
+  } catch (error: any) {
+    console.error(`Error fetching Storyblok story "${slug}":`, error.message);
+    
+    // Log more details for debugging
+    if (error.response) {
+      console.error('Status:', error.response.status);
+      console.error('Data:', error.response.data);
+    }
+    
     return null;
   }
 }
 
-// Helper function to get multiple stories (for blog, etc.)
+// Helper to get multiple stories
 export async function getStoryblokStories(
   startsWith: string = '',
   isPreview = false,
@@ -76,13 +97,13 @@ export async function getStoryblokStories(
       total: data?.total || 0,
       perPage: data?.per_page || perPage,
     };
-  } catch (error) {
-    console.error('Error fetching Storyblok stories:', error);
+  } catch (error: any) {
+    console.error('Error fetching Storyblok stories:', error.message);
     return { stories: [], total: 0, perPage };
   }
 }
 
-// Type definitions for Storyblok content
+// Type definitions
 export interface StoryblokStory {
   id: number;
   uuid: string;
@@ -110,15 +131,4 @@ export interface StoryblokAsset {
   filename: string;
   copyright: string;
   fieldtype: string;
-}
-
-export interface SeoComponent {
-  title?: string;
-  description?: string;
-  og_image?: StoryblokAsset;
-  og_title?: string;
-  og_description?: string;
-  twitter_image?: StoryblokAsset;
-  twitter_title?: string;
-  twitter_description?: string;
 }

@@ -1,7 +1,7 @@
 
 // components/storyblok/FaqSection.tsx
 import { storyblokEditable } from '@storyblok/react/rsc';
-import { renderRichText } from '@storyblok/richtext';
+import { richTextResolver } from '@storyblok/richtext';
 import {
   Disclosure,
   DisclosureButton,
@@ -43,7 +43,7 @@ export default function FaqSection({ blok }: FaqSectionProps) {
             <div 
               className="mx-auto mt-4 max-w-3xl text-lg text-gray-600"
               dangerouslySetInnerHTML={{ 
-                __html: renderRichText(blok.description) 
+                __html: richTextResolver(blok.description) 
               }}
             />
           )}
@@ -70,7 +70,7 @@ export default function FaqSection({ blok }: FaqSectionProps) {
                       <div 
                         className="prose text-gray-600"
                         dangerouslySetInnerHTML={{ 
-                          __html: renderRichText(faq.answer) 
+                          __html: richTextResolver(faq.answer) 
                         }}
                       />
                     </DisclosurePanel>

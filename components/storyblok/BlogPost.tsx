@@ -1,6 +1,6 @@
 // components/storyblok/BlogPost.tsx
 import { storyblokEditable } from '@storyblok/react/rsc';
-import { renderRichText } from '@storyblok/richtext';
+import { richTextResolver } from '@storyblok/richtext';
 import { getProducts } from '@/lib/shopify';
 import Link from 'next/link';
 import { GridTileImage } from '@/components/grid/tile';
@@ -28,7 +28,12 @@ interface BlogPostProps {
 
 export default async function BlogPost({ blok }: BlogPostProps) {
   // Fetch featured products if specified
-  let featuredProducts = [];
+  let featuredProducts: any[] = [];
+
+  if (!blok) {
+  return <div>No blok provided</div>;
+}
+
   if (blok.featured_products && blok.featured_products.length > 0) {
     const allProducts = await getProducts({});
     featuredProducts = allProducts.filter(p => 
@@ -92,7 +97,7 @@ export default async function BlogPost({ blok }: BlogPostProps) {
           <div 
             className="prose prose-lg max-w-none text-gray-700 prose-headings:text-gray-900 prose-links:text-gray-900 prose-strong:text-gray-900"
             dangerouslySetInnerHTML={{ 
-              __html: renderRichText(blok.content) 
+              __html: richTextResolver(blok.content) 
             }}
           />
         )}

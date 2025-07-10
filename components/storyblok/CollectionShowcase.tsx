@@ -1,6 +1,6 @@
 import { storyblokEditable } from '@storyblok/react/rsc';
-import { renderRichText } from '@storyblok/richtext';
-import { getCollection } from '@/lib/shopify';
+import { richTextResolver } from '@storyblok/richtext';
+import { getCollection, getProducts } from '@/lib/shopify';
 import Link from 'next/link';
 import { GridTileImage } from '@/components/grid/tile';
 import Price from '@/components/price';
@@ -28,10 +28,20 @@ export default async function CollectionShowcase({ blok }: CollectionShowcasePro
         <p className="text-center text-gray-500">No collection selected</p>
       </div>
     );
-}
+  }
+
+  if (!blok.collection_handle) {
+    return <div>No collection handle provided</div>;
   }
 
   const collection = await getCollection(blok.collection_handle);
+
+  const allProducts = await getProducts({
+    query: `collection:${blok.collection_handle}`
+  });
+  
+  // Limit products based on the max_products setting
+  const products = allProducts.slice(0, blok.max_products || 6);
   
   if (!collection) {
     return (
@@ -41,7 +51,6 @@ export default async function CollectionShowcase({ blok }: CollectionShowcasePro
     );
   }
 
-  const products = collection.products.slice(0, blok.max_products || 6);
   const backgroundClass = blok.background_color 
     ? `bg-${blok.background_color}` 
     : 'bg-white';
@@ -64,7 +73,7 @@ export default async function CollectionShowcase({ blok }: CollectionShowcasePro
                 <div 
                   className="text-lg text-gray-600"
                   dangerouslySetInnerHTML={{ 
-                    __html: renderRichText(blok.description) 
+                    __html: richTextResolver(blok.description) 
                   }}
                 />
               ) : collection.description && (
@@ -86,7 +95,7 @@ export default async function CollectionShowcase({ blok }: CollectionShowcasePro
             {/* Collection Image */}
             <div className="relative">
               <img
-                src={blok.custom_image?.filename || collection.image?.url || '/placeholder.jpg'}
+                src={blok.custom_image?.filename || collection.image?.src || '/placeholder.jpg'}
                 alt={blok.custom_image?.alt || collection.title}
                 className="h-96 w-full rounded-lg object-cover lg:h-full"
               />
@@ -113,7 +122,7 @@ export default async function CollectionShowcase({ blok }: CollectionShowcasePro
               <div className="mx-auto mt-4 max-w-3xl text-lg text-gray-600">
                 {blok.description ? (
                   <div dangerouslySetInnerHTML={{ 
-                    __html: renderRichText(blok.description) 
+                    __html: richTextResolver(blok.description) 
                   }} />
                 ) : (
                   <p>{collection.description}</p>
@@ -130,7 +139,7 @@ export default async function CollectionShowcase({ blok }: CollectionShowcasePro
                   <div className="aspect-square overflow-hidden rounded-lg bg-gray-100">
                     <GridTileImage
                       alt={product.title}
-                      src={product.featuredImage?.url}
+                      src={product.featuredImage?.src}
                       fill
                       sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
                       className="object-cover transition-all duration-300 group-hover:scale-105"
@@ -183,7 +192,7 @@ export default async function CollectionShowcase({ blok }: CollectionShowcasePro
             <div className="mt-4 text-lg text-gray-600">
               {blok.description ? (
                 <div dangerouslySetInnerHTML={{ 
-                  __html: renderRichText(blok.description) 
+                  __html: richTextResolver(blok.description) 
                 }} />
               ) : (
                 <p>{collection.description}</p>
@@ -199,7 +208,7 @@ export default async function CollectionShowcase({ blok }: CollectionShowcasePro
               <div className="aspect-square overflow-hidden rounded-lg bg-gray-100">
                 <GridTileImage
                   alt={product.title}
-                  src={product.featuredImage?.url}
+                  src={product.featuredImage?.src}
                   fill
                   sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, (min-width: 640px) 50vw, 50vw"
                   className="object-cover transition-all duration-300 group-hover:scale-105"
@@ -233,3 +242,4 @@ export default async function CollectionShowcase({ blok }: CollectionShowcasePro
       </div>
     </section>
   );
+}

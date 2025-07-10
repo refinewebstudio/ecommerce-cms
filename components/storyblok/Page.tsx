@@ -1,4 +1,4 @@
-import { StoryblokComponent, storyblokEditable } from '@storyblok/react/rsc';
+import { StoryblokComponent, storyblokEditable } from '@storyblok/react';
 import { StoryblokComponent as StoryblokComponentType } from '@/lib/storyblok';
 
 interface PageProps {

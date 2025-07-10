@@ -1,5 +1,5 @@
 import { storyblokEditable } from '@storyblok/react/rsc';
-import { renderRichText } from '@storyblok/richtext';
+import { richTextResolver } from '@storyblok/richtext';
 import { getProducts, getCollection } from '@/lib/shopify';
 import Link from 'next/link';
 import { GridTileImage } from '@/components/grid/tile';
@@ -25,10 +25,17 @@ export default async function ProductGrid({ blok }: ProductGridProps) {
   let products = [];
   
   // Fetch products based on configuration
+  if (!blok.collection_handle) {
+    return <div>No collection handle provided</div>;
+  }
   if (blok.collection_handle) {
     // Fetch from Shopify collection
-    const collection = await getCollection(blok.collection_handle);
-    products = collection?.products || [];
+    const allProducts = await getProducts({
+    query: `collection:${blok.collection_handle}`
+  });
+  
+  // Limit products based on the max_products setting
+    products = allProducts.slice(0, blok.max_products || 6);
   } else if (blok.products && blok.products.length > 0) {
     // Fetch specific products by handle
     const allProducts = await getProducts({});
@@ -37,9 +44,7 @@ export default async function ProductGrid({ blok }: ProductGridProps) {
     );
   } else {
     // Fallback: fetch recent products
-    const result = await getProducts({ 
-      first: blok.max_products || 8 
-    });
+    const result = await getProducts({});
     products = result;
   }
 
@@ -78,7 +83,7 @@ export default async function ProductGrid({ blok }: ProductGridProps) {
                 <div 
                   className="mx-auto mt-4 max-w-3xl text-lg text-gray-600"
                   dangerouslySetInnerHTML={{ 
-                    __html: renderRichText(blok.description) 
+                    __html: richTextResolver(blok.description) 
                   }}
                 />
               )}
@@ -118,7 +123,7 @@ export default async function ProductGrid({ blok }: ProductGridProps) {
               <div 
                 className="mx-auto mt-4 max-w-3xl text-lg text-gray-600"
                 dangerouslySetInnerHTML={{ 
-                  __html: renderRichText(blok.description) 
+                  __html: richTextResolver(blok.description) 
                 }}
               />
             )}

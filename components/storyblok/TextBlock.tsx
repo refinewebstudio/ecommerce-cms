@@ -1,5 +1,5 @@
 import { storyblokEditable } from '@storyblok/react/rsc';
-import { renderRichText } from '@storyblok/richtext';
+import { richTextResolver } from '@storyblok/richtext';
 
 interface TextBlockProps {
   blok: {
@@ -38,7 +38,7 @@ export default function TextBlock({ blok }: TextBlockProps) {
             <div 
               className="prose prose-lg text-gray-600 prose-headings:text-gray-900 prose-links:text-gray-900"
               dangerouslySetInnerHTML={{ 
-                __html: renderRichText(blok.content) 
+                __html: richTextResolver(blok.content) 
               }}
             />
           )}

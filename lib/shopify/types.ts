@@ -41,7 +41,7 @@ export type Collection = ShopifyCollection & {
 };
 
 export type Image = {
-  url: string;
+  src: string;
   altText: string;
   width: number;
   height: number;
@@ -82,6 +82,7 @@ export type ProductOption = {
 export type ProductVariant = {
   id: string;
   title: string;
+  sku: string;
   availableForSale: boolean;
   selectedOptions: {
     name: string;
@@ -109,9 +110,11 @@ export type ShopifyCart = {
 
 export type ShopifyCollection = {
   handle: string;
+  image: Image;
   title: string;
   description: string;
   seo: SEO;
+  path: string;
   updatedAt: string;
 };
 

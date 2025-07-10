@@ -165,17 +165,32 @@ const reshapeCollections = (collections: ShopifyCollection[]) => {
   return reshapedCollections;
 };
 
-const reshapeImages = (images: Connection<Image>, productTitle: string) => {
+function reshapeImages(images: Connection<ShopifyProduct['images']['edges'][0]['node']>) {
   const flattened = removeEdgesAndNodes(images);
-
+  
   return flattened.map((image) => {
-    const filename = image.url.match(/.*\/(.*)\..*/)?.[1];
+    // Add null/undefined checks before calling .match()
+    if (!image?.url || typeof image.url !== 'string') {
+      console.warn('Invalid image URL found:', image);
+      return {
+        ...image,
+        url: '/placeholder-image.jpg', // Fallback image
+        altText: image?.altText || 'Product image',
+        width: image?.width || 800,
+        height: image?.height || 600
+      };
+    }
+
+    const filename = image.url.match(/.*\/(.*)\..*/)?.[1] || '';
+    
     return {
       ...image,
-      altText: image.altText || `${productTitle} - ${filename}`
+      altText: image.altText || 'Product image',
+      width: image.width || 800,
+      height: image.height || 600
     };
   });
-};
+}
 
 const reshapeProduct = (
   product: ShopifyProduct,
@@ -351,7 +366,13 @@ export async function getCollections(): Promise<Collection[]> {
         description: 'All products'
       },
       path: '/search',
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
+      image: {
+        src: '/placeholder-collection.jpg', // or any default image
+        altText: 'All products',
+        width: 800,
+        height: 600
+      }
     },
     // Filter out the `hidden` collections.
     // Collections that start with `hidden-*` need to be hidden on the search page.

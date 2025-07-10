@@ -3,7 +3,7 @@
 'use client';
 
 import { storyblokEditable } from '@storyblok/react/rsc';
-import { renderRichText } from '@storyblok/richtext';
+import { richTextResolver } from '@storyblok/richtext';
 import { useState } from 'react';
 
 interface NewsletterSignupProps {
@@ -72,7 +72,7 @@ export default function NewsletterSignup({ blok }: NewsletterSignupProps) {
             <div 
               className="mx-auto mt-4 max-w-3xl text-lg text-gray-600"
               dangerouslySetInnerHTML={{ 
-                __html: renderRichText(blok.description) 
+                __html: richTextResolver(blok.description) 
               }}
             />
           )}

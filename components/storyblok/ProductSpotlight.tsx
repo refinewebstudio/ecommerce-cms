@@ -1,7 +1,7 @@
 import { storyblokEditable } from '@storyblok/react/rsc';
-import { renderRichText } from '@storyblok/richtext';
+import { richTextResolver } from '@storyblok/richtext';
 import { getProduct } from '@/lib/shopify';
-import { AddToCartButton } from '@/components/cart/add-to-cart-button';
+import { AddToCart } from '@/components/cart/add-to-cart';
 import Price from '@/components/price';
 import { Gallery } from '@/components/product/gallery';
 import { StoryblokAsset } from '@/lib/storyblok';
@@ -101,7 +101,7 @@ export default async function ProductSpotlight({ blok }: ProductSpotlightProps) 
               <div 
                 className="prose prose-lg text-gray-600"
                 dangerouslySetInnerHTML={{ 
-                  __html: renderRichText(blok.editorial_content) 
+                  __html: richTextResolver(blok.editorial_content) 
                 }}
               />
             )}
@@ -133,13 +133,10 @@ export default async function ProductSpotlight({ blok }: ProductSpotlightProps) 
 
             {/* Add to cart */}
             <div className="flex flex-col gap-4 sm:flex-row">
-              <AddToCartButton 
-                variants={product.variants}
-                availableForSale={product.availableForSale}
-                className="flex-1"
+              <AddToCart 
+                product={product}
               >
-                {blok.custom_cta || 'Add to Cart'}
-              </AddToCartButton>
+              </AddToCart>
               
               <button className="flex-1 rounded-md border border-gray-300 bg-white px-6 py-3 text-sm font-medium text-gray-900 hover:bg-gray-50">
                 Learn More
