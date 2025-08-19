@@ -1,6 +1,5 @@
-
-// components/storyblok/TestimonialGrid.tsx (Updated version)
-import { storyblokEditable, StoryblokComponent } from '@storyblok/react';
+// components/storyblok/TestimonialGrid.tsx - Fixed for RSC package
+import { storyblokEditable, StoryblokServerComponent } from '@storyblok/react/rsc';
 
 interface TestimonialGridProps {
   blok: {
@@ -32,7 +31,7 @@ export default function TestimonialGrid({ blok }: TestimonialGridProps) {
         {blok.testimonials && blok.testimonials.length > 0 ? (
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
             {blok.testimonials.map((testimonial) => (
-              <StoryblokComponent 
+              <StoryblokServerComponent 
                 blok={testimonial} 
                 key={testimonial._uid} 
               />

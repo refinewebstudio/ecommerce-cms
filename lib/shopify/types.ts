@@ -273,3 +273,11 @@ export type ShopifyProductsOperation = {
     sortKey?: string;
   };
 };
+
+
+export type NewsletterFormProps = {
+  buttonText: string;
+  placeholderText: string;
+  successMessage: string;
+  layout: string;
+}

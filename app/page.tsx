@@ -1,10 +1,17 @@
-// 1. First, update your app/page.tsx (root homepage)
-// app/page.tsx
 
+// app/page.tsx - Updated to handle Storyblok preview parameters with bridge
 import { Suspense } from 'react';
-import { StoryblokComponent } from '@storyblok/react';
+import { StoryblokStory } from '@storyblok/react/rsc';
 import { getStoryblokStory } from '@/lib/storyblok';
 import { Metadata } from 'next';
+import StoryblokPreviewBridge from '@/components/StoryblokPreviewBridge';
+
+interface HomePageProps {
+  searchParams: Promise<{
+    _storyblok?: string;
+    _storyblok_tk?: string;
+  }>;
+}
 
 // Fallback loading component
 function LoadingFallback() {
@@ -30,20 +37,39 @@ function ErrorFallback() {
   );
 }
 
-export default async function HomePage() {
+export default async function HomePage(props: HomePageProps) {
+  const searchParams = await props.searchParams;
+  const isPreview = !!searchParams._storyblok;
+
   try {
-    // Try to get Storyblok homepage
-    const story = await getStoryblokStory('home');
+    // IMPORTANT: Always use draft version for homepage when in preview
+    const story = await getStoryblokStory('home', isPreview);
     
     if (!story) {
-      // If no Storyblok story found, show error or fallback
       return <ErrorFallback />;
     }
 
     return (
-      <Suspense fallback={<LoadingFallback />}>
-        <StoryblokComponent blok={story.content} />
-      </Suspense>
+      <>
+        {/* Add the bridge component - this is likely what's missing */}
+        <StoryblokPreviewBridge />
+        
+        {/* Debug info to verify we're getting draft content */}
+        {process.env.NODE_ENV === 'development' && isPreview && (
+          <div className="bg-yellow-50 border border-yellow-200 p-4 mb-4 text-sm">
+            <strong>🏠 Homepage Preview Mode:</strong>
+            <div>Story: {story.name}</div>
+            <div>Published: {story.published_at ? '✅ Yes' : '❌ No (Draft)'}</div>
+            <div>Preview mode: ✅ Yes</div>
+            <div>Story ID: {story.id}</div>
+            <div>Content updated: {new Date(story.content._uid).toLocaleString()}</div>
+          </div>
+        )}
+        
+        <Suspense fallback={<LoadingFallback />}>
+          <StoryblokStory story={story} />
+        </Suspense>
+      </>
     );
   } catch (error) {
     console.error('Error loading homepage:', error);
@@ -52,9 +78,12 @@ export default async function HomePage() {
 }
 
 // Generate metadata from Storyblok SEO data
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata(props: HomePageProps): Promise<Metadata> {
+  const searchParams = await props.searchParams;
+  const isPreview = !!searchParams._storyblok;
+
   try {
-    const story = await getStoryblokStory('home');
+    const story = await getStoryblokStory('home', isPreview);
     
     if (!story) {
       return {

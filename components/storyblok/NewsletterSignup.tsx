@@ -1,10 +1,7 @@
-
-// components/storyblok/NewsletterSignup.tsx
-'use client';
-
+// components/storyblok/NewsletterSignup.tsx (Server Component)
 import { storyblokEditable } from '@storyblok/react/rsc';
 import { richTextResolver } from '@storyblok/richtext';
-import { useState } from 'react';
+import NewsletterForm from './NewsletterForm'; // Client component
 
 interface NewsletterSignupProps {
   blok: {
@@ -21,42 +18,18 @@ interface NewsletterSignupProps {
 }
 
 export default function NewsletterSignup({ blok }: NewsletterSignupProps) {
-  const [email, setEmail] = useState('');
-  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
-  const [message, setMessage] = useState('');
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setStatus('loading');
-
-    try {
-      // Replace with your newsletter service API
-      const response = await fetch('/api/newsletter', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email }),
-      });
-
-      if (response.ok) {
-        setStatus('success');
-        setMessage(blok.success_message || 'Thanks for subscribing!');
-        setEmail('');
-      } else {
-        throw new Error('Failed to subscribe');
-      }
-    } catch (error) {
-      setStatus('error');
-      setMessage('Something went wrong. Please try again.');
-    }
-  };
-
+  const { render } = richTextResolver()
   const backgroundClass = blok.background_color 
     ? `bg-${blok.background_color}` 
     : 'bg-gray-50';
 
-  const isInline = blok.layout === 'inline';
+  // Extract only plain data (no functions) to pass to client component
+  const formProps = {
+    placeholderText: blok.placeholder_text || 'Enter your email',
+    buttonText: blok.button_text || 'Subscribe',
+    successMessage: blok.success_message || 'Thanks for subscribing!',
+    layout: blok.layout || 'stacked'
+  };
 
   return (
     <section {...storyblokEditable(blok)} className={`py-16 ${backgroundClass}`}>
@@ -72,51 +45,13 @@ export default function NewsletterSignup({ blok }: NewsletterSignupProps) {
             <div 
               className="mx-auto mt-4 max-w-3xl text-lg text-gray-600"
               dangerouslySetInnerHTML={{ 
-                __html: richTextResolver(blok.description) 
+                __html: render(blok.description) as string 
               }}
             />
           )}
 
-          <form onSubmit={handleSubmit} className="mx-auto mt-8 max-w-md">
-            {status === 'success' ? (
-              <div className="rounded-md bg-green-50 p-4">
-                <p className="text-sm font-medium text-green-800">{message}</p>
-              </div>
-            ) : (
-              <div className={`flex ${isInline ? 'flex-row gap-3' : 'flex-col gap-4'}`}>
-                <div className="flex-1">
-                  <label htmlFor="email" className="sr-only">
-                    Email address
-                  </label>
-                  <input
-                    id="email"
-                    name="email"
-                    type="email"
-                    autoComplete="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full rounded-md border border-gray-300 px-4 py-3 text-base placeholder-gray-500 focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900"
-                    placeholder={blok.placeholder_text || 'Enter your email'}
-                  />
-                </div>
-                <button
-                  type="submit"
-                  disabled={status === 'loading'}
-                  className="rounded-md bg-gray-900 px-6 py-3 text-base font-medium text-white hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 disabled:opacity-50"
-                >
-                  {status === 'loading' 
-                    ? 'Subscribing...' 
-                    : (blok.button_text || 'Subscribe')
-                  }
-                </button>
-              </div>
-            )}
-
-            {status === 'error' && (
-              <p className="mt-2 text-sm text-red-600">{message}</p>
-            )}
-          </form>
+          {/* Pass only plain data to client component */}
+          <NewsletterForm {...formProps} />
 
           <p className="mt-4 text-sm text-gray-500">
             We respect your privacy and never share your email address.
@@ -126,3 +61,4 @@ export default function NewsletterSignup({ blok }: NewsletterSignupProps) {
     </section>
   );
 }
+

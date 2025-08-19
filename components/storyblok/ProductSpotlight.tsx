@@ -5,6 +5,9 @@ import { AddToCart } from '@/components/cart/add-to-cart';
 import Price from '@/components/price';
 import { Gallery } from '@/components/product/gallery';
 import { StoryblokAsset } from '@/lib/storyblok';
+import { ProductProvider } from '@/components/product/product-context';
+import Image from 'next/image';
+
 
 interface ProductSpotlightProps {
   blok: {
@@ -22,6 +25,8 @@ interface ProductSpotlightProps {
 }
 
 export default async function ProductSpotlight({ blok }: ProductSpotlightProps) {
+  const { render } = richTextResolver()
+
   if (!blok.product_handle) {
     return (
       <div {...storyblokEditable(blok)} className="py-8">
@@ -50,6 +55,14 @@ export default async function ProductSpotlight({ blok }: ProductSpotlightProps) 
     ? `bg-${blok.background_color}` 
     : 'bg-white';
 
+     // Transform product images to the format Gallery expects
+  const galleryImages = product.images.map(image => ({
+    src: image.url,
+    altText: image.altText || product.title
+  }));
+
+  console.log(galleryImages)
+
   return (
     <section 
       {...storyblokEditable(blok)} 
@@ -64,17 +77,22 @@ export default async function ProductSpotlight({ blok }: ProductSpotlightProps) 
               // Use custom lifestyle images from Storyblok
               <div className="grid grid-cols-1 gap-4">
                 {blok.lifestyle_images.map((image, index) => (
-                  <img
-                    key={index}
+                  <Image
+                     key={index}
                     src={image.filename}
                     alt={image.alt || product.title}
+                    width={600}
+                    height={400}
                     className="h-96 w-full rounded-lg object-cover"
                   />
                 ))}
               </div>
             ) : (
               // Fallback to Shopify product images
-              <Gallery images={product.images} />
+              <ProductProvider>
+                <Gallery images={galleryImages} />
+              </ProductProvider>
+              
             )}
           </div>
 
@@ -101,7 +119,7 @@ export default async function ProductSpotlight({ blok }: ProductSpotlightProps) 
               <div 
                 className="prose prose-lg text-gray-600"
                 dangerouslySetInnerHTML={{ 
-                  __html: richTextResolver(blok.editorial_content) 
+                  __html: render(blok.editorial_content)  as string
                 }}
               />
             )}
@@ -133,10 +151,11 @@ export default async function ProductSpotlight({ blok }: ProductSpotlightProps) 
 
             {/* Add to cart */}
             <div className="flex flex-col gap-4 sm:flex-row">
-              <AddToCart 
-                product={product}
-              >
-              </AddToCart>
+              
+              <ProductProvider>
+                <AddToCart product={product} />
+              </ProductProvider>
+               
               
               <button className="flex-1 rounded-md border border-gray-300 bg-white px-6 py-3 text-sm font-medium text-gray-900 hover:bg-gray-50">
                 Learn More
@@ -163,3 +182,5 @@ export default async function ProductSpotlight({ blok }: ProductSpotlightProps) 
     </section>
   );
 }
+
+

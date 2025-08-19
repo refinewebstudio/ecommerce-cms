@@ -22,6 +22,7 @@ interface ProductGridProps {
 }
 
 export default async function ProductGrid({ blok }: ProductGridProps) {
+  const { render } = richTextResolver()
   let products = [];
   
   // Fetch products based on configuration
@@ -83,7 +84,7 @@ export default async function ProductGrid({ blok }: ProductGridProps) {
                 <div 
                   className="mx-auto mt-4 max-w-3xl text-lg text-gray-600"
                   dangerouslySetInnerHTML={{ 
-                    __html: richTextResolver(blok.description) 
+                    __html: render(blok.description) as string
                   }}
                 />
               )}
@@ -123,7 +124,7 @@ export default async function ProductGrid({ blok }: ProductGridProps) {
               <div 
                 className="mx-auto mt-4 max-w-3xl text-lg text-gray-600"
                 dangerouslySetInnerHTML={{ 
-                  __html: richTextResolver(blok.description) 
+                  __html: render(blok.description) as string
                 }}
               />
             )}
@@ -197,3 +198,4 @@ function ProductCard({
     </Link>
   );
 }
+

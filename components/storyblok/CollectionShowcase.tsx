@@ -22,6 +22,7 @@ interface CollectionShowcaseProps {
 }
 
 export default async function CollectionShowcase({ blok }: CollectionShowcaseProps) {
+  const { render } = richTextResolver()
   if (!blok.collection_handle) {
     return (
       <div {...storyblokEditable(blok)} className="py-8">
@@ -73,7 +74,7 @@ export default async function CollectionShowcase({ blok }: CollectionShowcasePro
                 <div 
                   className="text-lg text-gray-600"
                   dangerouslySetInnerHTML={{ 
-                    __html: richTextResolver(blok.description) 
+                    __html: render(blok.description) as string
                   }}
                 />
               ) : collection.description && (
@@ -122,7 +123,7 @@ export default async function CollectionShowcase({ blok }: CollectionShowcasePro
               <div className="mx-auto mt-4 max-w-3xl text-lg text-gray-600">
                 {blok.description ? (
                   <div dangerouslySetInnerHTML={{ 
-                    __html: richTextResolver(blok.description) 
+                    __html: render(blok.description) as string
                   }} />
                 ) : (
                   <p>{collection.description}</p>
@@ -192,7 +193,7 @@ export default async function CollectionShowcase({ blok }: CollectionShowcasePro
             <div className="mt-4 text-lg text-gray-600">
               {blok.description ? (
                 <div dangerouslySetInnerHTML={{ 
-                  __html: richTextResolver(blok.description) 
+                  __html: render(blok.description) as string
                 }} />
               ) : (
                 <p>{collection.description}</p>
@@ -243,3 +244,4 @@ export default async function CollectionShowcase({ blok }: CollectionShowcasePro
     </section>
   );
 }
+

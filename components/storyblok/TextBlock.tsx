@@ -13,6 +13,7 @@ interface TextBlockProps {
 }
 
 export default function TextBlock({ blok }: TextBlockProps) {
+  const { render } = richTextResolver()
   const alignmentClasses = {
     left: 'text-left',
     center: 'text-center',
@@ -38,7 +39,7 @@ export default function TextBlock({ blok }: TextBlockProps) {
             <div 
               className="prose prose-lg text-gray-600 prose-headings:text-gray-900 prose-links:text-gray-900"
               dangerouslySetInnerHTML={{ 
-                __html: richTextResolver(blok.content) 
+                __html: render(blok.content) as string
               }}
             />
           )}
@@ -47,3 +48,4 @@ export default function TextBlock({ blok }: TextBlockProps) {
     </section>
   );
 }
+

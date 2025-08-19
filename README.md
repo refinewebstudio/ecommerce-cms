@@ -73,3 +73,161 @@ Your app should now be running on [localhost:3000](http://localhost:3000/).
 ## Vercel, Next.js Commerce, and Shopify Integration Guide
 
 You can use this comprehensive [integration guide](https://vercel.com/docs/integrations/ecommerce/shopify) with step-by-step instructions on how to configure Shopify as a headless CMS using Next.js Commerce as your headless Shopify storefront on Vercel.
+
+## Storyblok integration and default pages
+
+## eCommerce Site Pages
+
+This table outlines the baseline pages needed for an eCommerce site and which tool to use for each page type.
+
+## Page Management by Tool
+
+| Page Type              | Specific Pages                                                                                                                   | Tool      | Reason                                                  |
+| ---------------------- | -------------------------------------------------------------------------------------------------------------------------------- | --------- | ------------------------------------------------------- |
+| **Homepage**           | Homepage (`/`)                                                                                                                   | Storyblok | Marketing content, customizable sections, A/B testing   |
+| **Product Pages**      | Individual product pages (`/products/*`)                                                                                         | Shopify   | Product data, inventory, variants, checkout integration |
+| **Collection Pages**   | Category/collection listings (`/collections/*`)                                                                                  | Shopify   | Product filtering, sorting, dynamic inventory           |
+| **Search Results**     | Search page (`/search`)                                                                                                          | Shopify   | Product search, filters, real-time inventory            |
+| **Cart & Checkout**    | Cart (`/cart`)<br>Checkout process                                                                                               | Shopify   | Secure payments, tax calculation, order processing      |
+| **Account Pages**      | Login (`/account/login`)<br>Register (`/account/register`)<br>Account dashboard (`/account`)                                     | Shopify   | User authentication, order history, account management  |
+| **Legal/Policy Pages** | Privacy Policy (`/privacy-policy`)<br>Terms of Service (`/terms`)<br>Return Policy (`/returns`)<br>Shipping Policy (`/shipping`) | Storyblok | Content management, easy updates, compliance            |
+| **Marketing Pages**    | About Us (`/about`)<br>Contact (`/contact`)<br>Brand Story                                                                       | Storyblok | Rich content, media, customizable layouts               |
+| **Blog/Content**       | Blog listing (`/blog`)<br>Blog posts (`/blog/*`)                                                                                 | Storyblok | Content marketing, SEO, editorial workflow              |
+| **Customer Service**   | FAQ (`/faq`)<br>Size Guide (`/size-guide`)<br>Care Instructions                                                                  | Storyblok | Searchable content, rich formatting                     |
+| **Landing Pages**      | Campaign pages<br>Seasonal promotions<br>Product launches                                                                        | Storyblok | A/B testing, rapid deployment, marketing campaigns      |
+
+## Tool Summary
+
+### Storyblok Pages (Marketing & Content)
+
+- ✅ Rich content editing
+- ✅ Visual editor
+- ✅ A/B testing capabilities
+- ✅ Custom components
+- ✅ SEO optimization
+
+### Shopify Pages (eCommerce Functions)
+
+- ✅ Product data integration
+- ✅ Inventory management
+- ✅ Secure checkout
+- ✅ Payment processing
+- ✅ Order management
+
+## Implementation Notes
+
+1. **Dynamic Routing**: Use `app/[slug]/page.tsx` to handle both Shopify and Storyblok pages
+2. **Priority Order**: Check Shopify first for product/commerce pages, fallback to Storyblok for content pages
+3. **Preview Mode**: Ensure Storyblok pages support visual editing in preview mode
+4. **SEO**: Both tools should generate proper metadata for their respective page types
+
+# eCommerce Site Functionality Requirements
+
+This checklist outlines the essential functionality needed for a complete eCommerce site.
+
+## Core eCommerce Features
+
+| Feature                      | Status | Implementation     | Priority |
+| ---------------------------- | ------ | ------------------ | -------- |
+| **Product Catalog**          | ✅     | Shopify            | High     |
+| **Shopping Cart**            | ✅     | Shopify            | High     |
+| **Checkout Process**         | ✅     | Shopify            | High     |
+| **Payment Processing**       | ✅     | Shopify Payments   | High     |
+| **Order Management**         | ✅     | Shopify Admin      | High     |
+| **Inventory Management**     | ✅     | Shopify            | High     |
+| **Product Search & Filters** | ✅     | Shopify            | High     |
+| **User Accounts**            | ✅     | Shopify            | Medium   |
+| **Wishlist/Favorites**       | ⏳     | Custom/Shopify App | Medium   |
+
+## Content Management
+
+| Feature           | Status | Implementation | Priority |
+| ----------------- | ------ | -------------- | -------- |
+| **Homepage CMS**  | ✅     | Storyblok      | High     |
+| **Landing Pages** | ✅     | Storyblok      | High     |
+| **Blog/Content**  | ✅     | Storyblok      | Medium   |
+| **Legal Pages**   | ✅     | Storyblok      | High     |
+| **FAQ System**    | ⏳     | Storyblok      | Medium   |
+| **A/B Testing**   | ✅     | GrowthBook     | Medium   |
+
+## User Experience & Compliance
+
+| Feature                       | Status | Implementation                 | Priority |
+| ----------------------------- | ------ | ------------------------------ | -------- |
+| **Cookie Consent Banner**     | ✅     | Custom Component               | High     |
+| **GDPR Compliance**           | ⏳     | Cookie Banner + Privacy Policy | High     |
+| **Mobile Responsive Design**  | ✅     | Tailwind CSS                   | High     |
+| **Accessibility (WCAG)**      | ⏳     | Semantic HTML + ARIA           | Medium   |
+| **Error Handling (404, 500)** | ⏳     | Next.js Error Pages            | High     |
+| **Loading States**            | ⏳     | React Suspense                 | Medium   |
+
+## Analytics & Tracking
+
+| Feature                    | Status | Implementation         | Priority |
+| -------------------------- | ------ | ---------------------- | -------- |
+| **Google Analytics 4**     | ✅     | GA4 Integration        | High     |
+| **Microsoft Clarity**      | ✅     | Clarity Heatmaps       | Medium   |
+| **Conversion Tracking**    | ⏳     | GA4 Enhanced eCommerce | High     |
+| **User Behavior Analysis** | ✅     | Clarity + GA4          | Medium   |
+| **Performance Monitoring** | ⏳     | Vercel Analytics       | Medium   |
+
+## Marketing & Communication
+
+| Feature                         | Status | Implementation            | Priority |
+| ------------------------------- | ------ | ------------------------- | -------- |
+| **Contact Forms**               | ⏳     | Storyblok Component + API | High     |
+| **Newsletter Signup**           | ⏳     | Mailchimp/ConvertKit      | Medium   |
+| **Email Marketing Integration** | ⏳     | Shopify Email/Klaviyo     | Medium   |
+| **Social Media Integration**    | ⏳     | Social Share Components   | Low      |
+| **Live Chat Support**           | ⏳     | Intercom/Zendesk          | Medium   |
+| **Product Reviews**             | ⏳     | Shopify App (Judge.me)    | Medium   |
+
+## SEO & Performance
+
+| Feature                | Status | Implementation           | Priority |
+| ---------------------- | ------ | ------------------------ | -------- |
+| **Meta Tags & Schema** | ✅     | Next.js Metadata API     | High     |
+| **Sitemap Generation** | ⏳     | Next.js Sitemap          | High     |
+| **Image Optimization** | ✅     | Next.js Image Component  | High     |
+| **Core Web Vitals**    | ⏳     | Performance Optimization | Medium   |
+| **Structured Data**    | ⏳     | JSON-LD Schema           | Medium   |
+
+## Security & Data Protection
+
+| Feature             | Status | Implementation                  | Priority |
+| ------------------- | ------ | ------------------------------- | -------- |
+| **SSL Certificate** | ✅     | Vercel/Cloudflare               | High     |
+| **Data Protection** | ⏳     | Privacy Policy + Cookie Consent | High     |
+| **Secure Payments** | ✅     | Shopify Secure Checkout         | High     |
+| **Rate Limiting**   | ⏳     | API Route Protection            | Medium   |
+| **CSRF Protection** | ✅     | Next.js Built-in                | Medium   |
+
+## Development & Deployment
+
+| Feature                    | Status | Implementation      | Priority |
+| -------------------------- | ------ | ------------------- | -------- |
+| **Environment Management** | ✅     | Vercel Environments | High     |
+| **Preview/Staging**        | ✅     | Storyblok Preview   | High     |
+| **CI/CD Pipeline**         | ✅     | Vercel Auto-deploy  | High     |
+| **Error Monitoring**       | ⏳     | Sentry              | Medium   |
+| **Database Backup**        | ✅     | Shopify Built-in    | High     |
+
+## Status Legend
+
+- ✅ **Implemented**: Feature is complete and working
+- ⏳ **Planned**: Feature is planned but not yet implemented
+- ❌ **Not Required**: Feature is not needed for this project
+
+## Implementation Priority
+
+- **High**: Essential for launch
+- **Medium**: Important for user experience
+- **Low**: Nice to have features
+
+## Next Steps
+
+1. Implement high-priority missing features (Error handling, Contact forms)
+2. Set up analytics tracking and conversion goals
+3. Add GDPR compliance features
+4. Optimize for Core Web Vitals
+5. Implement customer support features

@@ -1,7 +1,7 @@
-// app/[slug]/page.tsx - Combined dynamic route for both Shopify and Storyblok
+// app/[slug]/page.tsx - Simplified version without preview bridge
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { StoryblokComponent } from '@storyblok/react';
+import { StoryblokStory } from '@storyblok/react/rsc';
 import Prose from 'components/prose';
 import { getPage } from 'lib/shopify';
 import { getStoryblokStory } from '@/lib/storyblok';
@@ -44,27 +44,26 @@ export default async function DynamicPage(props: PageProps) {
   try {
     const story = await getStoryblokStory(params.slug, isPreview);
     if (story) {
-      return <StoryblokComponent blok={story.content} />;
-    }
-  } catch (error) {
-    console.log('Storyblok page not found');
-  }
       return (
         <>
-          <h1 className="mb-8 text-5xl font-bold">{page.title}</h1>
-          <Prose className="mb-8" html={page.body} />
-          <p className="text-sm italic">
-            {`This document was last updated on ${new Intl.DateTimeFormat(undefined, {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric'
-            }).format(new Date(page.updatedAt))}.`}
-          </p>
+          {/* Debug info in development */}
+          {process.env.NODE_ENV === 'development' && (
+            <div className="bg-blue-50 border border-blue-200 p-4 mb-4 text-sm">
+              <strong>🔍 Storyblok Debug Info:</strong>
+              <div>Story: {story.name}</div>
+              <div>Published: {story.published_at ? '✅ Yes' : '❌ No (Draft)'}</div>
+              <div>Preview mode: {isPreview ? '✅ Yes' : '❌ No'}</div>
+              <div>Content type: {story.content.component}</div>
+            </div>
+          )}
+          
+          {/* Use StoryblokStory instead of StoryblokComponent */}
+          <StoryblokStory story={story} />
         </>
       );
     }
   } catch (error) {
-    console.log('Shopify page not found');
+    console.log('Storyblok page not found');
   }
 
   // Neither found - return 404

@@ -1,11 +1,11 @@
-// lib/storyblok.ts (updated version)
 
-import { storyblokInit, apiPlugin, getStoryblokApi } from '@storyblok/react';
+// lib/storyblok.ts - Fixed version with proper token handling for preview
+import { storyblokInit, apiPlugin } from '@storyblok/react/rsc';
 
 // Import your components (make sure these files exist)
 import Page from '@/components/storyblok/Page';
 import Hero from '@/components/storyblok/HeroSection';
-import ProductSpotlight from '@/components/storyblok/ProductSpotlight' ;
+import ProductSpotlight from '@/components/storyblok/ProductSpotlight';
 import ProductGrid from '@/components/storyblok/ProductGrid';
 import TextBlock from '@/components/storyblok/TextBlock';
 import CtaSection from '@/components/storyblok/CtaSection';
@@ -18,37 +18,34 @@ import Seo from '@/components/storyblok/Seo';
 
 const components = {
   page: Page,
-    hero: Hero,
-    product_spotlight: ProductSpotlight,
-    product_grid: ProductGrid,
-    text_block: TextBlock,
-    cta_section: CtaSection,
-    collection_showcase: CollectionShowcase,
-    testimonial_grid: TestimonialGrid,
-    testimonial: Testimonial,
-    newsletter_signup: NewsletterSignup,
-    cta_button: CtaButton,
-    seo: Seo,
+  hero: Hero,
+  product_spotlight: ProductSpotlight,
+  product_grid: ProductGrid,
+  text_block: TextBlock,
+  cta_section: CtaSection,
+  collection_showcase: CollectionShowcase,
+  testimonial_grid: TestimonialGrid,
+  testimonial: Testimonial,
+  newsletter_signup: NewsletterSignup,
+  cta_button: CtaButton,
+  seo: Seo,
 };
 
-// Initialize Storyblok
-storyblokInit({
-  accessToken: process.env.STORYBLOK_ACCESS_TOKEN!,
+// Use preview token for initialization to support both published and draft content
+const accessToken = process.env.NEXT_PUBLIC_STORYBLOK_ACCESS_TOKEN || process.env.STORYBLOK_ACCESS_TOKEN;
+
+// Initialize Storyblok with preview token for full access
+export const getStoryblokApi = storyblokInit({
+  accessToken: accessToken!,
   use: [apiPlugin],
   components,
+  apiOptions: {
+    region: 'eu', // Change to 'us' if your space is in the US region
+  },
 });
 
-console.log('🔍 Checking component types:');
-Object.entries(components).forEach(([name, component]) => {
-  console.log(`${name}:`, {
-    isFunction: typeof component === 'function',
-    isAsync: component.constructor.name === 'AsyncFunction',
-    toString: component.toString().slice(0, 100) + '...'
-  });
-});
-
-
-export { getStoryblokApi };
+console.log('🔍 Storyblok initialized with token type:', accessToken?.startsWith(process.env.NEXT_PUBLIC_STORYBLOK_ACCESS_TOKEN || '') ? 'PREVIEW' : 'PUBLISHED');
+console.log('🔍 Component registration:', Object.keys(components));
 
 // Helper function to get story with better error handling
 export async function getStoryblokStory(slug: string, isPreview = false) {
@@ -58,6 +55,7 @@ export async function getStoryblokStory(slug: string, isPreview = false) {
     const { data } = await storyblokApi.get(`cdn/stories/${slug}`, {
       version: isPreview ? 'draft' : 'published',
       resolve_relations: ['product_spotlight.product_handle', 'product_grid.products'],
+      cv: isPreview ? Date.now() : undefined, // Cache busting for preview mode
     });
     
     return data?.story;
@@ -90,6 +88,7 @@ export async function getStoryblokStories(
       per_page: perPage,
       page: page,
       sort_by: 'created_at:desc',
+      cv: isPreview ? Date.now() : undefined,
     });
     
     return {

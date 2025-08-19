@@ -5,11 +5,6 @@ import {
 } from 'lib/constants';
 import { isShopifyError } from 'lib/type-guards';
 import { ensureStartsWith } from 'lib/utils';
-import {
-  revalidateTag,
-  unstable_cacheTag as cacheTag,
-  unstable_cacheLife as cacheLife
-} from 'next/cache';
 import { cookies, headers } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 import {
@@ -169,9 +164,9 @@ function reshapeImages(images: Connection<ShopifyProduct['images']['edges'][0]['
   const flattened = removeEdgesAndNodes(images);
   
   return flattened.map((image) => {
-    // Add null/undefined checks before calling .match()
-    if (!image?.url || typeof image.url !== 'string') {
-      console.warn('Invalid image URL found:', image);
+    // More specific validation - only warn for actually invalid URLs
+    if (!image?.url || typeof image.url !== 'string' || image.url.trim() === '') {
+      console.warn('Invalid or empty image URL found:', image);
       return {
         ...image,
         url: '/placeholder-image.jpg', // Fallback image
@@ -181,7 +176,14 @@ function reshapeImages(images: Connection<ShopifyProduct['images']['edges'][0]['
       };
     }
 
-    const filename = image.url.match(/.*\/(.*)\..*/)?.[1] || '';
+    // Only try to extract filename if the URL looks like it has one
+    let filename = '';
+    try {
+      const matches = image.url.match(/.*\/(.*)\..*/);
+      filename = matches?.[1] || '';
+    } catch (error) {
+      console.warn('Error parsing image filename:', error);
+    }
     
     return {
       ...image,
@@ -207,7 +209,7 @@ const reshapeProduct = (
 
   return {
     ...rest,
-    images: reshapeImages(images, product.title),
+    images: reshapeImages(images),
     variants: removeEdgesAndNodes(variants)
   };
 };
@@ -301,9 +303,9 @@ export async function getCart(): Promise<Cart | undefined> {
 export async function getCollection(
   handle: string
 ): Promise<Collection | undefined> {
-  'use cache';
-  cacheTag(TAGS.collections);
-  cacheLife('days');
+  // 'use cache';
+  // cacheTag(TAGS.collections);
+  // cacheLife('days');
 
   const res = await shopifyFetch<ShopifyCollectionOperation>({
     query: getCollectionQuery,
@@ -324,9 +326,9 @@ export async function getCollectionProducts({
   reverse?: boolean;
   sortKey?: string;
 }): Promise<Product[]> {
-  'use cache';
-  cacheTag(TAGS.collections, TAGS.products);
-  cacheLife('days');
+  // 'use cache';
+  // cacheTag(TAGS.collections, TAGS.products);
+  // cacheLife('days');
 
   const res = await shopifyFetch<ShopifyCollectionProductsOperation>({
     query: getCollectionProductsQuery,
@@ -348,9 +350,9 @@ export async function getCollectionProducts({
 }
 
 export async function getCollections(): Promise<Collection[]> {
-  'use cache';
-  cacheTag(TAGS.collections);
-  cacheLife('days');
+  // 'use cache';
+  // cacheTag(TAGS.collections);
+  // cacheLife('days');
 
   const res = await shopifyFetch<ShopifyCollectionsOperation>({
     query: getCollectionsQuery
@@ -385,9 +387,9 @@ export async function getCollections(): Promise<Collection[]> {
 }
 
 export async function getMenu(handle: string): Promise<Menu[]> {
-  'use cache';
-  cacheTag(TAGS.collections);
-  cacheLife('days');
+  // 'use cache';
+  // cacheTag(TAGS.collections);
+  // cacheLife('days');
 
   const res = await shopifyFetch<ShopifyMenuOperation>({
     query: getMenuQuery,
@@ -425,9 +427,9 @@ export async function getPages(): Promise<Page[]> {
 }
 
 export async function getProduct(handle: string): Promise<Product | undefined> {
-  'use cache';
-  cacheTag(TAGS.products);
-  cacheLife('days');
+  // 'use cache';
+  // cacheTag(TAGS.products);
+  // cacheLife('days');
 
   const res = await shopifyFetch<ShopifyProductOperation>({
     query: getProductQuery,
@@ -442,9 +444,9 @@ export async function getProduct(handle: string): Promise<Product | undefined> {
 export async function getProductRecommendations(
   productId: string
 ): Promise<Product[]> {
-  'use cache';
-  cacheTag(TAGS.products);
-  cacheLife('days');
+  // 'use cache';
+  // cacheTag(TAGS.products);
+  // cacheLife('days');
 
   const res = await shopifyFetch<ShopifyProductRecommendationsOperation>({
     query: getProductRecommendationsQuery,
@@ -465,9 +467,9 @@ export async function getProducts({
   reverse?: boolean;
   sortKey?: string;
 }): Promise<Product[]> {
-  'use cache';
-  cacheTag(TAGS.products);
-  cacheLife('days');
+  // 'use cache';
+  // cacheTag(TAGS.products);
+  // cacheLife('days');
 
   const res = await shopifyFetch<ShopifyProductsOperation>({
     query: getProductsQuery,
@@ -510,13 +512,7 @@ export async function revalidate(req: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ status: 200 });
   }
 
-  if (isCollectionUpdate) {
-    revalidateTag(TAGS.collections);
-  }
 
-  if (isProductUpdate) {
-    revalidateTag(TAGS.products);
-  }
 
   return NextResponse.json({ status: 200, revalidated: true, now: Date.now() });
 }

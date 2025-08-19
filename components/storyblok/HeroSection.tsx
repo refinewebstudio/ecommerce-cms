@@ -2,6 +2,7 @@ import { storyblokEditable } from '@storyblok/react/rsc';
 import { richTextResolver } from '@storyblok/richtext';
 import Link from 'next/link';
 import { StoryblokAsset } from '@/lib/storyblok';
+import { trackFormSubmission } from '@/lib/analytics';
 
 interface HeroProps {
   blok: {
@@ -28,7 +29,21 @@ interface HeroProps {
   };
 }
 
+// FIX 1: Move getCtaClasses function OUTSIDE the component
+function getCtaClasses(style?: string, isPrimary?: boolean) {
+  const baseClasses = "inline-flex items-center rounded-md px-8 py-3 text-base font-medium transition-all duration-200";
+  
+  if (style === 'outline') {
+    return `${baseClasses} border-2 border-white text-white hover:bg-white hover:text-gray-900`;
+  } else if (style === 'secondary' || !isPrimary) {
+    return `${baseClasses} bg-white text-gray-900 hover:bg-gray-100`;
+  } else {
+    return `${baseClasses} bg-gray-900 text-white hover:bg-gray-800`;
+  }
+}
+
 export default function Hero({ blok }: HeroProps) {
+  const { render } = richTextResolver()
   const heightClasses = {
     small: 'h-96',
     medium: 'h-[32rem]',
@@ -56,7 +71,7 @@ export default function Hero({ blok }: HeroProps) {
       className={`relative flex items-center justify-center ${heightClasses[blok.height || 'medium']}`}
     >
       {/* Background Media */}
-      {blok.background_video ? (
+      {blok.background_video?.filename ? (
         <video
           autoPlay
           muted
@@ -66,7 +81,7 @@ export default function Hero({ blok }: HeroProps) {
         >
           <source src={blok.background_video.filename} type="video/mp4" />
         </video>
-      ) : blok.background_image ? (
+      ) : blok.background_image?.filename ? (
         <img
           src={blok.background_image.filename}
           alt={blok.background_image.alt || 'Hero background'}
@@ -93,21 +108,30 @@ export default function Hero({ blok }: HeroProps) {
 
           {blok.subheadline && (
             <div 
-              className={`text-xl sm:text-2xl ${textColorClasses[blok.text_color || 'white']} opacity-90`}
-              dangerouslySetInnerHTML={{ 
-                __html: richTextResolver(blok.subheadline) 
+              className={`text-xl sm:text-2xl ${textColorClasses[blok.text_color || 'white']} opacity-90`}  dangerouslySetInnerHTML={{ 
+                __html: render(blok.subheadline) as string
               }}
             />
           )}
 
-          {/* CTAs */}
+          {/* FIX 2: Add proper validation for CTAs to prevent undefined href errors */}
           {(blok.primary_cta || blok.secondary_cta) && (
             <div className="flex flex-col gap-4 sm:flex-row sm:gap-6">
-              {blok.primary_cta && (
-                <CTAButton cta={blok.primary_cta} isPrimary />
+              {blok.primary_cta?.text && blok.primary_cta?.url && (
+                <Link
+                  href={blok.primary_cta.url}
+                  className={getCtaClasses(blok.primary_cta.style, true)}
+                >
+                  {blok.primary_cta.text}
+                </Link>
               )}
-              {blok.secondary_cta && (
-                <CTAButton cta={blok.secondary_cta} isPrimary={false} />
+              {blok.secondary_cta?.text && blok.secondary_cta?.url && (
+                <Link
+                  href={blok.secondary_cta.url}
+                  className={getCtaClasses(blok.secondary_cta.style, false)}
+                >
+                  {blok.secondary_cta.text}
+                </Link>
               )}
             </div>
           )}
@@ -126,34 +150,5 @@ export default function Hero({ blok }: HeroProps) {
         </div>
       )}
     </section>
-  );
-}
-
-function CTAButton({ 
-  cta, 
-  isPrimary 
-}: { 
-  cta: { text: string; url: string; style?: string };
-  isPrimary: boolean;
-}) {
-  const baseClasses = "inline-flex items-center rounded-md px-8 py-3 text-base font-medium transition-all duration-200";
-  
-  let styleClasses = "";
-  
-  if (cta.style === 'outline') {
-    styleClasses = "border-2 border-white text-white hover:bg-white hover:text-gray-900";
-  } else if (cta.style === 'secondary' || !isPrimary) {
-    styleClasses = "bg-white text-gray-900 hover:bg-gray-100";
-  } else {
-    styleClasses = "bg-gray-900 text-white hover:bg-gray-800";
-  }
-
-  return (
-    <Link
-      href={cta.url}
-      className={`${baseClasses} ${styleClasses}`}
-    >
-      {cta.text}
-    </Link>
   );
 }

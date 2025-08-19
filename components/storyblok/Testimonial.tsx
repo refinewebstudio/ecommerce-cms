@@ -19,6 +19,7 @@ interface TestimonialProps {
 }
 
 export default function Testimonial({ blok }: TestimonialProps) {
+  const { render } = richTextResolver()
   return (
     <div {...storyblokEditable(blok)} className="rounded-lg bg-white p-8 shadow-sm">
       {/* Star Rating */}
@@ -44,7 +45,7 @@ export default function Testimonial({ blok }: TestimonialProps) {
         <div 
           className="mb-6 text-gray-600"
           dangerouslySetInnerHTML={{ 
-            __html: richTextResolver(blok.content) 
+            __html: render(blok.content) as string
           }}
         />
       )}
@@ -54,7 +55,7 @@ export default function Testimonial({ blok }: TestimonialProps) {
         {/* Avatar */}
         {blok.avatar ? (
           <img
-            src={blok.avatar.filename}
+            src={blok.avatar.filename || null}
             alt={blok.avatar.alt || blok.name || 'Customer avatar'}
             className="h-10 w-10 rounded-full object-cover"
           />
@@ -82,3 +83,4 @@ export default function Testimonial({ blok }: TestimonialProps) {
     </div>
   );
 }
+

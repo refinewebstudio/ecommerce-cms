@@ -11,6 +11,7 @@
     "storyblok:homepage": "node scripts/create-homepage.js"
   },
   "dependencies": {
+    "@growthbook/growthbook": "^1.6.1",
     "@headlessui/react": "^2.2.0",
     "@heroicons/react": "^2.2.0",
     "@storyblok/react": "^5.2.0",
